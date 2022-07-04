@@ -1,4 +1,6 @@
 settings.py
 .env
-migration
+migrations/
 __pycache__/
+db.sqlite3
+.env
