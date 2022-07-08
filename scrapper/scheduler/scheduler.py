@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from apscheduler.schedulers.background import BackgroundScheduler
 from job_scrapper.settings import DOMAIN, JOB_SITE_DOMAIN, JOB_SITE_SEARCH
+import logging
 
 
 def extract_jr_python_software_developer_jobs(url):
@@ -40,16 +41,22 @@ def post_jobs():
     endpoint = DOMAIN + '/jobs/'
     website_url = JOB_SITE_DOMAIN + JOB_SITE_SEARCH
 
-    print(endpoint)
-
     for job in extract_jr_python_software_developer_jobs(website_url):
-        p = requests.post(endpoint, json=job)
-        if str(p.status_code) == "201":
-            print(str(p.status_code) + ": Successfully posted job")
-        elif str(p.status_code) == "400":
-            print(str(p.status_code) + ": Job with this uuid already exists")
+        
+        response = requests.post(endpoint, json=job)
+        if str(response.status_code) == "201":
+            logging.info(f"{response.status_code}: Successfully posted job")
+
+        elif str(response.status_code) == "400":
+            logging.warning(f"{response.status_code}: Job with this uuid "
+                            f"already exists")
+
+            logging.info("Trying to update job...")
+            response = requests.put(endpoint + job['uuid'], json=job)
+            if str(response.status_code) == "200":
+                logging.info(f"{response.status_code}: Successfully updated job")
         else:
-            print(str(p.status_code) + ": Unkown error")
+            logging.critical(f"{response.status_code}: Unknown error")
 
 
 def start():

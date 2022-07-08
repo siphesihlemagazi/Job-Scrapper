@@ -10,6 +10,12 @@ class JobList(generics.ListCreateAPIView):
     serializer_class = JobSerializer
 
 
+class JobDetail(generics.RetrieveUpdateDestroyAPIView):
+    lookup_field = "uuid"
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+
+
 class JobListView(ListView):
     model = Job
     template_name = 'scrapper/index.html'
